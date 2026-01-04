@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wails version:*)",
+      "Bash(wails init:*)",
+      "Bash(mkdir:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(wails generate:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(wails dev:*)",
+      "Bash(npx vite build)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(npx vue-tsc --noEmit)"
+    ]
+  }
+}
