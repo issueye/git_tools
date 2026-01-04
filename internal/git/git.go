@@ -437,3 +437,94 @@ func getStatusDescription(code string) string {
 		return "Unknown"
 	}
 }
+
+// Push pushes the current branch to remote
+func (g *GitService) Push(remote string) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	args := []string{"push"}
+	if remote != "" {
+		args = append(args, remote)
+	}
+
+	_, err := g.runGitCommand(args...)
+	return err
+}
+
+// Pull pulls changes from remote
+func (g *GitService) Pull(remote string, branch string) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	args := []string{"pull"}
+	if remote != "" {
+		args = append(args, remote)
+	}
+	if branch != "" {
+		args = append(args, branch)
+	}
+
+	_, err := g.runGitCommand(args...)
+	return err
+}
+
+// ResetType represents the type of reset
+type ResetType string
+
+const (
+	ResetSoft  ResetType = "soft"
+	ResetMixed ResetType = "mixed"
+	ResetHard  ResetType = "hard"
+)
+
+// Reset resets the current branch to a specific commit
+func (g *GitService) Reset(resetType ResetType, commit string) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	args := []string{"reset", "--" + string(resetType)}
+	if commit != "" {
+		args = append(args, commit)
+	}
+
+	_, err := g.runGitCommand(args...)
+	return err
+}
+
+// Revert creates a new commit that undoes the changes from a specific commit
+func (g *GitService) Revert(commit string, noCommit bool) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	args := []string{"revert"}
+	if noCommit {
+		args = append(args, "--no-commit")
+	}
+	args = append(args, commit)
+
+	_, err := g.runGitCommand(args...)
+	return err
+}
+
+// GetRemotes returns a list of remote names
+func (g *GitService) GetRemoteNames() ([]string, error) {
+	if g.currentPath == "" {
+		return nil, fmt.Errorf("no repository selected")
+	}
+
+	remotes, err := g.GetRemotes()
+	if err != nil {
+		return nil, err
+	}
+
+	var names []string
+	for _, r := range remotes {
+		names = append(names, r.Name)
+	}
+	return names, nil
+}

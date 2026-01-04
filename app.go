@@ -308,3 +308,37 @@ func (a *App) GetRepositoryInfo() (map[string]interface{}, error) {
 func (a *App) RemoveRecentRepository(path string) error {
 	return a.configService.RemoveRecentRepo(path)
 }
+
+// Push pushes the current branch to remote
+func (a *App) Push(remote string) error {
+	return a.gitService.Push(remote)
+}
+
+// Pull pulls changes from remote
+func (a *App) Pull(remote string, branch string) error {
+	return a.gitService.Pull(remote, branch)
+}
+
+// ResetType represents the type of reset (exposed for frontend)
+type ResetType = git.ResetType
+
+const (
+	ResetSoft  ResetType = git.ResetSoft
+	ResetMixed ResetType = git.ResetMixed
+	ResetHard  ResetType = git.ResetHard
+)
+
+// Reset resets the current branch
+func (a *App) Reset(resetType ResetType, commit string) error {
+	return a.gitService.Reset(resetType, commit)
+}
+
+// Revert creates a new commit that undoes changes
+func (a *App) Revert(commit string, noCommit bool) error {
+	return a.gitService.Revert(commit, noCommit)
+}
+
+// GetRemoteNames returns available remote names
+func (a *App) GetRemoteNames() ([]string, error) {
+	return a.gitService.GetRemoteNames()
+}

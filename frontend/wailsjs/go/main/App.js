@@ -54,6 +54,10 @@ export function GetRecentRepositories() {
   return window['go']['main']['App']['GetRecentRepositories']();
 }
 
+export function GetRemoteNames() {
+  return window['go']['main']['App']['GetRemoteNames']();
+}
+
 export function GetRemotes() {
   return window['go']['main']['App']['GetRemotes']();
 }
@@ -78,12 +82,28 @@ export function OpenRepositoryInTerminal() {
   return window['go']['main']['App']['OpenRepositoryInTerminal']();
 }
 
+export function Pull(arg1, arg2) {
+  return window['go']['main']['App']['Pull'](arg1, arg2);
+}
+
+export function Push(arg1) {
+  return window['go']['main']['App']['Push'](arg1);
+}
+
 export function RemoveRecentRepository(arg1) {
   return window['go']['main']['App']['RemoveRecentRepository'](arg1);
 }
 
 export function RemoveRemote(arg1) {
   return window['go']['main']['App']['RemoveRemote'](arg1);
+}
+
+export function Reset(arg1, arg2) {
+  return window['go']['main']['App']['Reset'](arg1, arg2);
+}
+
+export function Revert(arg1, arg2) {
+  return window['go']['main']['App']['Revert'](arg1, arg2);
 }
 
 export function SelectDirectory() {
