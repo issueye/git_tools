@@ -95,19 +95,21 @@ async function loadRepoInfo() {
 }
 
 async function selectRecentRepo(path: string) {
-  isLoading.value = true
-  try {
-    await SelectRepository(path)
-    await loadStatus()
-    await loadRepoInfo()
-    if (branchPanelRef.value) {
-      branchPanelRef.value.loadBranches()
+    isLoading.value = true;
+    try {
+        await SelectRepository(path);
+        await loadStatus();
+        await loadRepoInfo();
+        if (branchPanelRef.value) {
+            branchPanelRef.value.loadBranches();
+        }
+        // Switch to status tab
+        currentTab.value = "status";
+    } catch (error: any) {
+        alert("Failed to open repository: " + error.message);
+    } finally {
+        isLoading.value = false;
     }
-  } catch (error: any) {
-    alert('Failed to open repository: ' + error.message)
-  } finally {
-    isLoading.value = false
-  }
 }
 
 function onRefresh() {
