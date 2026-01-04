@@ -3,20 +3,30 @@ import { ref, onMounted, computed } from 'vue'
 import {
   GetAllRepositories, GetRepository, AddRepository, UpdateRepository,
   UpdateRepositoryAlias, DeleteRepository, SearchRepositories,
-  SelectDirectory, IsValidGitRepository
+  SelectDirectory, IsValidGitRepository, CloneRepository, SelectRepository
 } from '/wailsjs/go/main/App'
 import type { models } from '/wailsjs/go/models'
+
+const emit = defineEmits(['repo-selected', 'repo-cloned'])
 
 const repositories = ref<models.Repository[]>([])
 const isLoading = ref(false)
 const showEditor = ref(false)
+const showCloneDialog = ref(false)
 const editingRepo = ref<models.Repository | null>(null)
 const searchKeyword = ref('')
+const selectedRepoPath = ref('')
 
 const form = ref({
   path: '',
   alias: '',
   description: ''
+})
+
+const cloneForm = ref({
+  url: '',
+  path: '',
+  branch: ''
 })
 
 async function loadRepositories() {
@@ -55,9 +65,31 @@ async function openSelectDialog() {
       alert('所选路径不是有效的 Git 仓库')
       return
     }
-    form.value.path = path
-    showEditor.value = true
-    editingRepo.value = null
+    // 通知父组件选择仓库
+    emit('repo-selected', path)
+  }
+}
+
+async function openRepository() {
+  const path = await SelectDirectory()
+  if (path && path !== '') {
+    const isValid = await IsValidGitRepository(path)
+    if (!isValid) {
+      alert('所选路径不是有效的 Git 仓库')
+      return
+    }
+    await selectRepository(path)
+  }
+}
+
+async function selectRepository(path: string) {
+  try {
+    await SelectRepository(path)
+    selectedRepoPath.value = path
+    emit('repo-selected', path)
+  } catch (error: any) {
+    console.error('Failed to select repository:', error)
+    alert('选择仓库失败: ' + error.message)
   }
 }
 
@@ -65,6 +97,32 @@ function openCreateDialog() {
   editingRepo.value = null
   form.value = { path: '', alias: '', description: '' }
   showEditor.value = true
+}
+
+function openCloneDialog() {
+  cloneForm.value = { url: '', path: '', branch: '' }
+  showCloneDialog.value = true
+}
+
+async function performClone() {
+  if (!cloneForm.value.url.trim()) {
+    alert('请输入仓库 URL')
+    return
+  }
+
+  try {
+    await CloneRepository(
+      cloneForm.value.url.trim(),
+      cloneForm.value.path.trim(),
+      cloneForm.value.branch.trim()
+    )
+    showCloneDialog.value = false
+    await loadRepositories()
+    emit('repo-cloned')
+  } catch (error: any) {
+    console.error('Failed to clone repository:', error)
+    alert('克隆失败: ' + error.message)
+  }
 }
 
 function openEditDialog(repo: models.Repository) {
@@ -148,10 +206,24 @@ defineExpose({ loadRepositories })
           <span v-if="isLoading">⟳</span>
           <span v-else>⟳</span>
         </button>
-        <button @click="openCreateDialog" class="btn-create">
-          + 添加仓库
-        </button>
       </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-row">
+      <button @click="openRepository" class="action-btn primary" title="打开本地仓库">
+        <span class="action-icon">📂</span>
+        <span>打开</span>
+      </button>
+      <button @click="openCloneDialog" class="action-btn" title="克隆远程仓库">
+        <span class="action-icon">📥</span>
+        <span>克隆</span>
+      </button>
+      <div class="action-divider"></div>
+      <button @click="openCreateDialog" class="action-btn" title="添加现有仓库到管理">
+        <span class="action-icon">➕</span>
+        <span>添加</span>
+      </button>
     </div>
 
     <!-- Search -->
@@ -172,7 +244,7 @@ defineExpose({ loadRepositories })
 
     <div v-else-if="repositories.length === 0" class="empty">
       <p>暂无仓库</p>
-      <p class="hint">点击"添加仓库"将本地 Git 仓库添加到管理列表</p>
+      <p class="hint">点击上方按钮打开或添加仓库</p>
     </div>
 
     <div v-else class="repo-list">
@@ -180,6 +252,7 @@ defineExpose({ loadRepositories })
         v-for="repo in repositories"
         :key="repo.id"
         class="repo-item"
+        :class="{ selected: repo.path === selectedRepoPath }"
       >
         <div class="repo-header">
           <div class="repo-info">
@@ -190,10 +263,13 @@ defineExpose({ loadRepositories })
             </div>
           </div>
           <div class="repo-actions">
-            <button @click="openEditDialog(repo)" class="btn-action" title="编辑">
+            <button @click="selectRepository(repo.path)" class="btn-action" :class="{ 'btn-select active': repo.path === selectedRepoPath }" :title="repo.path === selectedRepoPath ? '当前仓库' : '选择操作此仓库'">
+              {{ repo.path === selectedRepoPath ? '当前' : '选择' }}
+            </button>
+            <button @click="openEditDialog(repo)" class="btn-action" title="编辑仓库信息">
               编辑
             </button>
-            <button @click="deleteRepository(repo)" class="btn-action btn-danger" title="删除">
+            <button @click="deleteRepository(repo)" class="btn-action btn-danger" title="从管理列表删除">
               删除
             </button>
           </div>
@@ -258,6 +334,51 @@ defineExpose({ loadRepositories })
         </div>
       </div>
     </div>
+
+    <!-- Clone Dialog -->
+    <div v-if="showCloneDialog" class="dialog-overlay" @click.self="showCloneDialog = false">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>克隆仓库</h3>
+          <button @click="showCloneDialog = false" class="btn-close">✕</button>
+        </div>
+        <div class="dialog-body">
+          <div class="form-group">
+            <label>仓库 URL <span class="required">*</span></label>
+            <input
+              v-model="cloneForm.url"
+              type="text"
+              placeholder="https://github.com/user/repo.git"
+              class="form-input"
+            />
+          </div>
+          <div class="form-group">
+            <label>本地路径</label>
+            <input
+              v-model="cloneForm.path"
+              type="text"
+              placeholder="留空则自动生成"
+              class="form-input"
+            />
+          </div>
+          <div class="form-group">
+            <label>分支（可选）</label>
+            <input
+              v-model="cloneForm.branch"
+              type="text"
+              placeholder="主分支"
+              class="form-input"
+            />
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button @click="showCloneDialog = false" class="btn-cancel">取消</button>
+          <button @click="performClone" class="btn-confirm" :disabled="!cloneForm.url.trim()">
+            克隆
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -299,6 +420,57 @@ defineExpose({ loadRepositories })
 .header-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.action-row .action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.action-row .action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(97, 218, 251, 0.3);
+  color: #fff;
+}
+
+.action-row .action-btn.primary {
+  background: rgba(97, 218, 251, 0.1);
+  border-color: rgba(97, 218, 251, 0.3);
+  color: #61dafb;
+}
+
+.action-row .action-btn.primary:hover {
+  background: rgba(97, 218, 251, 0.2);
+  border-color: #61dafb;
+}
+
+.action-row .action-icon {
+  font-size: 1rem;
+}
+
+.action-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 0.25rem;
 }
 
 .btn-refresh, .btn-create {
@@ -394,6 +566,11 @@ defineExpose({ loadRepositories })
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+.repo-item.selected {
+  border-color: #61dafb;
+  background: rgba(97, 218, 251, 0.05);
+}
+
 .repo-header {
   display: flex;
   justify-content: space-between;
@@ -429,23 +606,44 @@ defineExpose({ loadRepositories })
 }
 
 .repo-actions {
-  display: flex;
-  gap: 0.5rem;
+  display: inline-flex;
+  gap: 0.35rem;
 }
 
 .btn-action {
-  padding: 0.3rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.65rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   background: transparent;
-  color: #ccc;
+  color: #999;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-action:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn-action.btn-select {
+  border-color: rgba(97, 218, 251, 0.4);
+  color: #61dafb;
+}
+
+.btn-action.btn-select:hover {
+  background: rgba(97, 218, 251, 0.1);
+}
+
+.btn-action.btn-select.active {
+  background: rgba(97, 218, 251, 0.15);
+  border-color: #61dafb;
+  color: #fff;
 }
 
 .btn-action.btn-danger:hover {

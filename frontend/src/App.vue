@@ -129,6 +129,18 @@ function onBranchChanged() {
   loadRepoInfo()
 }
 
+// Handle repository selection from RepositoriesPanel
+async function onRepoSelected(path: string) {
+  await loadStatus()
+  await loadRepoInfo()
+  await loadRecentRepos()
+  if (branchPanelRef.value) {
+    branchPanelRef.value.loadBranches()
+  }
+  // Switch to status tab to show the repository
+  currentTab.value = 'status'
+}
+
 // Open local repository
 async function openRepository() {
   try {
@@ -359,14 +371,6 @@ watch(status, () => {
       <div class="sidebar-section">
         <div class="sidebar-section-title">仓库</div>
         <nav class="nav-tabs">
-          <button @click="openRepository" class="action-btn">
-            <span class="action-icon">📂</span>
-            <span>打开</span>
-          </button>
-          <button @click="showCloneRepository" class="action-btn">
-            <span class="action-icon">📥</span>
-            <span>克隆</span>
-          </button>
           <button
             @click="currentTab = 'repositories'"
             :class="{ active: currentTab === 'repositories' }"
@@ -544,7 +548,7 @@ watch(status, () => {
 
       <!-- Repositories Tab -->
       <div v-show="currentTab === 'repositories'" class="tab-content">
-        <RepositoriesPanel ref="repositoriesPanelRef" />
+        <RepositoriesPanel ref="repositoriesPanelRef" @repo-selected="onRepoSelected" />
       </div>
 
       <!-- AI Config Tab -->
