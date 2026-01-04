@@ -55,6 +55,30 @@ export namespace models {
 	        this.isCurrent = source["isCurrent"];
 	    }
 	}
+	export class Command {
+	    id: string;
+	    name: string;
+	    description: string;
+	    command: string;
+	    category: string;
+	    createdAt: string;
+	    updatedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Command(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.command = source["command"];
+	        this.category = source["category"];
+	        this.createdAt = source["createdAt"];
+	        this.updatedAt = source["updatedAt"];
+	    }
+	}
 	export class CommitInfo {
 	    hash: string;
 	    message: string;
@@ -130,6 +154,30 @@ export namespace models {
 		    }
 		    return a;
 		}
+	}
+	export class Prompt {
+	    id: string;
+	    name: string;
+	    description: string;
+	    template: string;
+	    isDefault: boolean;
+	    createdAt: string;
+	    updatedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Prompt(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.template = source["template"];
+	        this.isDefault = source["isDefault"];
+	        this.createdAt = source["createdAt"];
+	        this.updatedAt = source["updatedAt"];
+	    }
 	}
 	export class Remote {
 	    name: string;

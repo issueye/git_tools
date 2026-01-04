@@ -26,12 +26,28 @@ export function CreateBranch(arg1, arg2) {
   return window['go']['main']['App']['CreateBranch'](arg1, arg2);
 }
 
+export function CreateCommand(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['CreateCommand'](arg1, arg2, arg3, arg4);
+}
+
+export function CreatePrompt(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['CreatePrompt'](arg1, arg2, arg3, arg4);
+}
+
 export function CreateTag(arg1, arg2, arg3) {
   return window['go']['main']['App']['CreateTag'](arg1, arg2, arg3);
 }
 
 export function DeleteBranch(arg1, arg2) {
   return window['go']['main']['App']['DeleteBranch'](arg1, arg2);
+}
+
+export function DeleteCommand(arg1) {
+  return window['go']['main']['App']['DeleteCommand'](arg1);
+}
+
+export function DeletePrompt(arg1) {
+  return window['go']['main']['App']['DeletePrompt'](arg1);
 }
 
 export function DeleteTag(arg1) {
@@ -58,6 +74,22 @@ export function GetBranches() {
   return window['go']['main']['App']['GetBranches']();
 }
 
+export function GetCategories() {
+  return window['go']['main']['App']['GetCategories']();
+}
+
+export function GetCommand(arg1) {
+  return window['go']['main']['App']['GetCommand'](arg1);
+}
+
+export function GetCommands() {
+  return window['go']['main']['App']['GetCommands']();
+}
+
+export function GetCommandsByCategory(arg1) {
+  return window['go']['main']['App']['GetCommandsByCategory'](arg1);
+}
+
 export function GetCommitDetail(arg1) {
   return window['go']['main']['App']['GetCommitDetail'](arg1);
 }
@@ -66,12 +98,24 @@ export function GetCurrentRepository() {
   return window['go']['main']['App']['GetCurrentRepository']();
 }
 
+export function GetDefaultPrompt() {
+  return window['go']['main']['App']['GetDefaultPrompt']();
+}
+
 export function GetDiff(arg1, arg2) {
   return window['go']['main']['App']['GetDiff'](arg1, arg2);
 }
 
 export function GetLog(arg1) {
   return window['go']['main']['App']['GetLog'](arg1);
+}
+
+export function GetPrompt(arg1) {
+  return window['go']['main']['App']['GetPrompt'](arg1);
+}
+
+export function GetPrompts() {
+  return window['go']['main']['App']['GetPrompts']();
 }
 
 export function GetRecentRepositories() {
@@ -150,6 +194,10 @@ export function SetAIConfig(arg1) {
   return window['go']['main']['App']['SetAIConfig'](arg1);
 }
 
+export function SetDefaultPrompt(arg1) {
+  return window['go']['main']['App']['SetDefaultPrompt'](arg1);
+}
+
 export function StageAll() {
   return window['go']['main']['App']['StageAll']();
 }
@@ -168,4 +216,12 @@ export function UnstageAll() {
 
 export function UnstageFiles(arg1) {
   return window['go']['main']['App']['UnstageFiles'](arg1);
+}
+
+export function UpdateCommand(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['UpdateCommand'](arg1, arg2, arg3, arg4, arg5);
+}
+
+export function UpdatePrompt(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['UpdatePrompt'](arg1, arg2, arg3, arg4, arg5);
 }

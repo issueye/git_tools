@@ -15,18 +15,20 @@ import (
 
 // App struct
 type App struct {
-	ctx          context.Context
-	gitService   *git.GitService
-	aiService    *ai.AIService
-	configService *config.ConfigService
+	ctx            context.Context
+	gitService     *git.GitService
+	aiService      *ai.AIService
+	configService  *config.ConfigService
+	templateService *TemplateService
 }
 
 // NewApp creates a new App application struct
 func NewApp(configService *config.ConfigService) *App {
 	return &App{
-		gitService:    git.NewGitService(),
-		aiService:     ai.NewAIService(),
-		configService: configService,
+		gitService:     git.NewGitService(),
+		aiService:      ai.NewAIService(),
+		configService:  configService,
+		templateService: NewTemplateService(),
 	}
 }
 
@@ -393,4 +395,78 @@ func (a *App) DiffBranches(branch1 string, branch2 string) (string, error) {
 // GetCommitDetail returns detailed commit info
 func (a *App) GetCommitDetail(commitHash string) (map[string]interface{}, error) {
 	return a.gitService.GetCommitDetail(commitHash)
+}
+
+// ============ Prompt Management ============
+
+// GetPrompts returns all prompts
+func (a *App) GetPrompts() []models.Prompt {
+	return a.templateService.GetPrompts()
+}
+
+// GetPrompt returns a prompt by ID
+func (a *App) GetPrompt(id string) *models.Prompt {
+	return a.templateService.GetPrompt(id)
+}
+
+// GetDefaultPrompt returns the default prompt
+func (a *App) GetDefaultPrompt() *models.Prompt {
+	return a.templateService.GetDefaultPrompt()
+}
+
+// CreatePrompt creates a new prompt
+func (a *App) CreatePrompt(name, description, template string, isDefault bool) (*models.Prompt, error) {
+	return a.templateService.CreatePrompt(name, description, template, isDefault)
+}
+
+// UpdatePrompt updates an existing prompt
+func (a *App) UpdatePrompt(id, name, description, template string, isDefault bool) (*models.Prompt, error) {
+	return a.templateService.UpdatePrompt(id, name, description, template, isDefault)
+}
+
+// DeletePrompt deletes a prompt
+func (a *App) DeletePrompt(id string) error {
+	return a.templateService.DeletePrompt(id)
+}
+
+// SetDefaultPrompt sets a prompt as the default
+func (a *App) SetDefaultPrompt(id string) error {
+	return a.templateService.SetDefaultPrompt(id)
+}
+
+// ============ Command Management ============
+
+// GetCommands returns all commands
+func (a *App) GetCommands() []models.Command {
+	return a.templateService.GetCommands()
+}
+
+// GetCommand returns a command by ID
+func (a *App) GetCommand(id string) *models.Command {
+	return a.templateService.GetCommand(id)
+}
+
+// GetCommandsByCategory returns commands filtered by category
+func (a *App) GetCommandsByCategory(category string) []models.Command {
+	return a.templateService.GetCommandsByCategory(category)
+}
+
+// GetCategories returns all unique categories
+func (a *App) GetCategories() []string {
+	return a.templateService.GetCategories()
+}
+
+// CreateCommand creates a new command
+func (a *App) CreateCommand(name, description, command, category string) (*models.Command, error) {
+	return a.templateService.CreateCommand(name, description, command, category)
+}
+
+// UpdateCommand updates an existing command
+func (a *App) UpdateCommand(id, name, description, command, category string) (*models.Command, error) {
+	return a.templateService.UpdateCommand(id, name, description, command, category)
+}
+
+// DeleteCommand deletes a command
+func (a *App) DeleteCommand(id string) error {
+	return a.templateService.DeleteCommand(id)
 }

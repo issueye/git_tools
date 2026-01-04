@@ -76,3 +76,35 @@ type Remote struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
+
+// Prompt represents an AI prompt template
+type Prompt struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Template    string `json:"template"`
+	IsDefault   bool   `json:"isDefault"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
+}
+
+// Command represents a custom git command
+type Command struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Command     string `json:"command"`
+	Category    string `json:"category"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
+}
+
+// PromptsConfig holds all prompt templates
+type PromptsConfig struct {
+	Prompts []Prompt `json:"prompts"`
+}
+
+// CommandsConfig holds all custom commands
+type CommandsConfig struct {
+	Commands []Command `json:"commands"`
+}

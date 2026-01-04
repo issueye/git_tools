@@ -3,10 +3,11 @@ package main
 import (
 	"embed"
 
+	"git-ai-tools/internal/config"
+
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"git-ai-tools/internal/config"
 )
 
 //go:embed all:frontend/dist
@@ -22,8 +23,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "Git AI Tools",
-		Width:  1200,
-		Height: 800,
+		Width:  1500,
+		Height: 1200,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

@@ -15,9 +15,17 @@ export function Commit(arg1:string):Promise<void>;
 
 export function CreateBranch(arg1:string,arg2:boolean):Promise<void>;
 
+export function CreateCommand(arg1:string,arg2:string,arg3:string,arg4:string):Promise<models.Command>;
+
+export function CreatePrompt(arg1:string,arg2:string,arg3:string,arg4:boolean):Promise<models.Prompt>;
+
 export function CreateTag(arg1:string,arg2:string,arg3:string):Promise<void>;
 
 export function DeleteBranch(arg1:string,arg2:boolean):Promise<void>;
+
+export function DeleteCommand(arg1:string):Promise<void>;
+
+export function DeletePrompt(arg1:string):Promise<void>;
 
 export function DeleteTag(arg1:string):Promise<void>;
 
@@ -31,13 +39,27 @@ export function GetAIConfig():Promise<models.AIConfig>;
 
 export function GetBranches():Promise<Array<models.Branch>>;
 
+export function GetCategories():Promise<Array<string>>;
+
+export function GetCommand(arg1:string):Promise<models.Command>;
+
+export function GetCommands():Promise<Array<models.Command>>;
+
+export function GetCommandsByCategory(arg1:string):Promise<Array<models.Command>>;
+
 export function GetCommitDetail(arg1:string):Promise<Record<string, any>>;
 
 export function GetCurrentRepository():Promise<string>;
 
+export function GetDefaultPrompt():Promise<models.Prompt>;
+
 export function GetDiff(arg1:string,arg2:boolean):Promise<string>;
 
 export function GetLog(arg1:number):Promise<Array<models.CommitInfo>>;
+
+export function GetPrompt(arg1:string):Promise<models.Prompt>;
+
+export function GetPrompts():Promise<Array<models.Prompt>>;
 
 export function GetRecentRepositories():Promise<Array<string>>;
 
@@ -77,6 +99,8 @@ export function SelectRepository(arg1:string):Promise<void>;
 
 export function SetAIConfig(arg1:models.AIConfig):Promise<void>;
 
+export function SetDefaultPrompt(arg1:string):Promise<void>;
+
 export function StageAll():Promise<void>;
 
 export function StageFiles(arg1:Array<string>):Promise<void>;
@@ -86,3 +110,7 @@ export function TestAIConnection(arg1:models.AIConfig):Promise<void>;
 export function UnstageAll():Promise<void>;
 
 export function UnstageFiles(arg1:Array<string>):Promise<void>;
+
+export function UpdateCommand(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<models.Command>;
+
+export function UpdatePrompt(arg1:string,arg2:string,arg3:string,arg4:string,arg5:boolean):Promise<models.Prompt>;
