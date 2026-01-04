@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import { GetAIConfig, SetAIConfig, TestAIConnection, TestAIConnectionWithConfig } from '/wailsjs/go/main/App'
+import { GetAIConfig, SetAIConfig, TestAIConnection } from '/wailsjs/go/main/App'
 import type { services } from '/wailsjs/go/models'
 
 type AIProvider = 'openai' | 'claude' | 'ollama'
@@ -80,7 +80,7 @@ async function testConnection() {
 
   try {
     // Test with current configuration from the form
-    await TestAIConnectionWithConfig({
+    await TestAIConnection({
       provider: config.value.provider,
       apiKey: config.value.apiKey,
       baseUrl: config.value.baseUrl,

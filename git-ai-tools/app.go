@@ -178,14 +178,18 @@ func (a *App) SetAIConfig(config services.AIConfig) error {
 }
 
 // TestAIConnection tests the AI service connection
-func (a *App) TestAIConnection() error {
-	return a.aiService.ValidateConfig()
-}
-
-// TestAIConnectionWithConfig tests the AI service connection with the given configuration
-// without modifying the internal state
-func (a *App) TestAIConnectionWithConfig(config services.AIConfig) error {
-	if err := a.aiService.ValidateConfigParam(config); err != nil {
+// If config is provided, it validates the given config without modifying internal state
+// If no config is provided, it validates the current configuration
+func (a *App) TestAIConnection(config ...services.AIConfig) error {
+	if len(config) > 0 && config[0].Provider != "" {
+		// Validate the provided config without modifying internal state
+		if err := a.aiService.ValidateConfigParam(config[0]); err != nil {
+			return fmt.Errorf("AI configuration validation failed: %w", err)
+		}
+		return nil
+	}
+	// Validate current configuration
+	if err := a.aiService.ValidateConfig(); err != nil {
 		return fmt.Errorf("AI configuration validation failed: %w", err)
 	}
 	return nil
