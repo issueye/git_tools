@@ -12,7 +12,8 @@
       "Bash(npx vite build)",
       "Bash(dir:*)",
       "Bash(find:*)",
-      "Bash(npx vue-tsc --noEmit)"
+      "Bash(npx vue-tsc --noEmit)",
+      "Bash(go generate:*)"
     ]
   }
 }

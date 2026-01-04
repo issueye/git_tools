@@ -167,11 +167,14 @@ func (a *App) SetAIConfig(config services.AIConfig) error {
 
 	// Then validate the new config
 	if err := a.aiService.ValidateConfig(); err != nil {
-		return err
+		return fmt.Errorf("AI configuration validation failed: %w", err)
 	}
 
 	// Finally save to config service
-	return a.configService.SetAIConfig(config)
+	if err := a.configService.SetAIConfig(config); err != nil {
+		return fmt.Errorf("failed to save AI configuration: %w", err)
+	}
+	return nil
 }
 
 // TestAIConnection tests the AI service connection
