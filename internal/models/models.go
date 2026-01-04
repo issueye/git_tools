@@ -108,3 +108,18 @@ type PromptsConfig struct {
 type CommandsConfig struct {
 	Commands []Command `json:"commands"`
 }
+
+// Repository represents a managed repository
+type Repository struct {
+	ID          string `json:"id"`
+	Path        string `json:"path"`
+	Alias       string `json:"alias"`
+	Description string `json:"description"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
+}
+
+// RepositoriesConfig holds all managed repositories
+type RepositoriesConfig struct {
+	Repositories []Repository `json:"repositories"`
+}

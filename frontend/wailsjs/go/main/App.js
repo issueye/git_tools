@@ -6,6 +6,10 @@ export function AddRemote(arg1, arg2) {
   return window['go']['main']['App']['AddRemote'](arg1, arg2);
 }
 
+export function AddRepository(arg1, arg2, arg3) {
+  return window['go']['main']['App']['AddRepository'](arg1, arg2, arg3);
+}
+
 export function CheckoutBranch(arg1) {
   return window['go']['main']['App']['CheckoutBranch'](arg1);
 }
@@ -50,6 +54,10 @@ export function DeletePrompt(arg1) {
   return window['go']['main']['App']['DeletePrompt'](arg1);
 }
 
+export function DeleteRepository(arg1) {
+  return window['go']['main']['App']['DeleteRepository'](arg1);
+}
+
 export function DeleteTag(arg1) {
   return window['go']['main']['App']['DeleteTag'](arg1);
 }
@@ -68,6 +76,10 @@ export function GenerateCommitMessage() {
 
 export function GetAIConfig() {
   return window['go']['main']['App']['GetAIConfig']();
+}
+
+export function GetAllRepositories() {
+  return window['go']['main']['App']['GetAllRepositories']();
 }
 
 export function GetBranches() {
@@ -130,6 +142,10 @@ export function GetRemotes() {
   return window['go']['main']['App']['GetRemotes']();
 }
 
+export function GetRepository(arg1) {
+  return window['go']['main']['App']['GetRepository'](arg1);
+}
+
 export function GetRepositoryInfo() {
   return window['go']['main']['App']['GetRepositoryInfo']();
 }
@@ -182,6 +198,10 @@ export function Revert(arg1, arg2) {
   return window['go']['main']['App']['Revert'](arg1, arg2);
 }
 
+export function SearchRepositories(arg1) {
+  return window['go']['main']['App']['SearchRepositories'](arg1);
+}
+
 export function SelectDirectory() {
   return window['go']['main']['App']['SelectDirectory']();
 }
@@ -224,4 +244,12 @@ export function UpdateCommand(arg1, arg2, arg3, arg4, arg5) {
 
 export function UpdatePrompt(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['UpdatePrompt'](arg1, arg2, arg3, arg4, arg5);
+}
+
+export function UpdateRepository(arg1, arg2, arg3) {
+  return window['go']['main']['App']['UpdateRepository'](arg1, arg2, arg3);
+}
+
+export function UpdateRepositoryAlias(arg1, arg2) {
+  return window['go']['main']['App']['UpdateRepositoryAlias'](arg1, arg2);
 }

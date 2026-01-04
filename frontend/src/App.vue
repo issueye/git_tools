@@ -5,6 +5,8 @@ import CommitPanel from './components/CommitPanel.vue'
 import BranchPanel from './components/BranchPanel.vue'
 import HistoryPanel from './components/HistoryPanel.vue'
 import TagsPanel from './components/TagsPanel.vue'
+import PromptsPanel from './components/PromptsPanel.vue'
+import RepositoriesPanel from './components/RepositoriesPanel.vue'
 import AIConfigPanel from './components/AIConfigPanel.vue'
 import {
   GetStatus,
@@ -22,7 +24,7 @@ import {
 } from '/wailsjs/go/main/App'
 import type { models } from '/wailsjs/go/models'
 
-type TabType = 'status' | 'branches' | 'history' | 'tags' | 'ai-config'
+type TabType = 'status' | 'branches' | 'history' | 'tags' | 'prompts' | 'repositories' | 'ai-config'
 
 const currentTab = ref<TabType>('status')
 const status = ref<models.GitStatus | null>(null)
@@ -57,6 +59,8 @@ const operationResult = ref<{ success: boolean; message: string } | null>(null)
 const branchPanelRef = ref<InstanceType<typeof BranchPanel> | null>(null)
 const historyPanelRef = ref<InstanceType<typeof HistoryPanel> | null>(null)
 const tagsPanelRef = ref<InstanceType<typeof TagsPanel> | null>(null)
+const promptsPanelRef = ref<InstanceType<typeof PromptsPanel> | null>(null)
+const repositoriesPanelRef = ref<InstanceType<typeof RepositoriesPanel> | null>(null)
 
 async function loadStatus() {
   try {
@@ -384,6 +388,22 @@ watch(status, () => {
           <span>标签</span>
         </button>
         <button
+          @click="currentTab = 'prompts'"
+          :class="{ active: currentTab === 'prompts' }"
+          class="nav-tab"
+        >
+          <span class="tab-icon">📝</span>
+          <span>提示词</span>
+        </button>
+        <button
+          @click="currentTab = 'repositories'"
+          :class="{ active: currentTab === 'repositories' }"
+          class="nav-tab"
+        >
+          <span class="tab-icon">📁</span>
+          <span>仓库</span>
+        </button>
+        <button
           @click="currentTab = 'ai-config'"
           :class="{ active: currentTab === 'ai-config' }"
           class="nav-tab"
@@ -489,6 +509,16 @@ watch(status, () => {
       <!-- Tags Tab -->
       <div v-show="currentTab === 'tags'" class="tab-content">
         <TagsPanel ref="tagsPanelRef" :has-repository="!!currentRepo" @tag-changed="onBranchChanged" />
+      </div>
+
+      <!-- Prompts Tab -->
+      <div v-show="currentTab === 'prompts'" class="tab-content">
+        <PromptsPanel ref="promptsPanelRef" />
+      </div>
+
+      <!-- Repositories Tab -->
+      <div v-show="currentTab === 'repositories'" class="tab-content">
+        <RepositoriesPanel ref="repositoriesPanelRef" />
       </div>
 
       <!-- AI Config Tab -->

@@ -5,6 +5,8 @@ import {git} from '../models';
 
 export function AddRemote(arg1:string,arg2:string):Promise<void>;
 
+export function AddRepository(arg1:string,arg2:string,arg3:string):Promise<models.Repository>;
+
 export function CheckoutBranch(arg1:string):Promise<void>;
 
 export function CheckoutTag(arg1:string):Promise<void>;
@@ -27,6 +29,8 @@ export function DeleteCommand(arg1:string):Promise<void>;
 
 export function DeletePrompt(arg1:string):Promise<void>;
 
+export function DeleteRepository(arg1:string):Promise<void>;
+
 export function DeleteTag(arg1:string):Promise<void>;
 
 export function DiffBranches(arg1:string,arg2:string):Promise<string>;
@@ -36,6 +40,8 @@ export function DiscardChanges(arg1:string):Promise<void>;
 export function GenerateCommitMessage():Promise<string>;
 
 export function GetAIConfig():Promise<models.AIConfig>;
+
+export function GetAllRepositories():Promise<Array<models.Repository>>;
 
 export function GetBranches():Promise<Array<models.Branch>>;
 
@@ -67,6 +73,8 @@ export function GetRemoteNames():Promise<Array<string>>;
 
 export function GetRemotes():Promise<Array<models.Remote>>;
 
+export function GetRepository(arg1:string):Promise<models.Repository>;
+
 export function GetRepositoryInfo():Promise<Record<string, any>>;
 
 export function GetStatus():Promise<models.GitStatus>;
@@ -93,6 +101,8 @@ export function Reset(arg1:git.ResetType,arg2:string):Promise<void>;
 
 export function Revert(arg1:string,arg2:boolean):Promise<void>;
 
+export function SearchRepositories(arg1:string):Promise<Array<models.Repository>>;
+
 export function SelectDirectory():Promise<string>;
 
 export function SelectRepository(arg1:string):Promise<void>;
@@ -114,3 +124,7 @@ export function UnstageFiles(arg1:Array<string>):Promise<void>;
 export function UpdateCommand(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<models.Command>;
 
 export function UpdatePrompt(arg1:string,arg2:string,arg3:string,arg4:string,arg5:boolean):Promise<models.Prompt>;
+
+export function UpdateRepository(arg1:string,arg2:string,arg3:string):Promise<models.Repository>;
+
+export function UpdateRepositoryAlias(arg1:string,arg2:string):Promise<void>;

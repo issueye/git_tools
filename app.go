@@ -470,3 +470,40 @@ func (a *App) UpdateCommand(id, name, description, command, category string) (*m
 func (a *App) DeleteCommand(id string) error {
 	return a.templateService.DeleteCommand(id)
 }
+
+// ============ Repository Management ============
+
+// GetAllRepositories returns all managed repositories
+func (a *App) GetAllRepositories() []models.Repository {
+	return a.configService.GetAllRepositories()
+}
+
+// GetRepository returns a repository by ID
+func (a *App) GetRepository(id string) *models.Repository {
+	return a.configService.GetRepository(id)
+}
+
+// AddRepository adds a new repository
+func (a *App) AddRepository(path, alias, description string) (*models.Repository, error) {
+	return a.configService.AddRepository(path, alias, description)
+}
+
+// UpdateRepository updates an existing repository
+func (a *App) UpdateRepository(id, alias, description string) (*models.Repository, error) {
+	return a.configService.UpdateRepository(id, alias, description)
+}
+
+// UpdateRepositoryAlias updates only the alias of a repository
+func (a *App) UpdateRepositoryAlias(id, alias string) error {
+	return a.configService.UpdateRepositoryAlias(id, alias)
+}
+
+// DeleteRepository deletes a repository by ID
+func (a *App) DeleteRepository(id string) error {
+	return a.configService.DeleteRepository(id)
+}
+
+// SearchRepositories searches repositories by keyword
+func (a *App) SearchRepositories(keyword string) []models.Repository {
+	return a.configService.SearchRepositories(keyword)
+}

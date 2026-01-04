@@ -193,6 +193,28 @@ export namespace models {
 	        this.url = source["url"];
 	    }
 	}
+	export class Repository {
+	    id: string;
+	    path: string;
+	    alias: string;
+	    description: string;
+	    createdAt: string;
+	    updatedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Repository(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.path = source["path"];
+	        this.alias = source["alias"];
+	        this.description = source["description"];
+	        this.createdAt = source["createdAt"];
+	        this.updatedAt = source["updatedAt"];
+	    }
+	}
 
 }
 
