@@ -185,7 +185,10 @@ func (a *App) TestAIConnection() error {
 // TestAIConnectionWithConfig tests the AI service connection with the given configuration
 // without modifying the internal state
 func (a *App) TestAIConnectionWithConfig(config services.AIConfig) error {
-	return a.aiService.ValidateConfigParam(config)
+	if err := a.aiService.ValidateConfigParam(config); err != nil {
+		return fmt.Errorf("AI configuration validation failed: %w", err)
+	}
+	return nil
 }
 
 // ============ Utility Functions ============
