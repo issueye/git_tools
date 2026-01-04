@@ -75,8 +75,8 @@ async function openSelectDialog() {
             alert("所选路径不是有效的 Git 仓库");
             return;
         }
-        // 通知父组件选择仓库
-        emit("repo-selected", path);
+        // 只设置路径，不触发选择事件（添加仓库时使用）
+        form.value.path = path;
     }
 }
 
@@ -174,6 +174,10 @@ async function saveRepository() {
         }
         showEditor.value = false;
         await loadRepositories();
+        // 添加成功后显示提示
+        if (!editingRepo.value) {
+            alert("仓库添加成功！点击仓库列表中的「选择」按钮可将其设为当前操作仓库。");
+        }
     } catch (error: any) {
         console.error("Failed to save repository:", error);
         alert("保存失败: " + error.message);
