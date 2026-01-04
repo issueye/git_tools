@@ -347,90 +347,105 @@ watch(status, () => {
     <aside class="sidebar">
       <div class="sidebar-header">
         <h1>Git AI 工具</h1>
-        <div class="repo-info" v-if="currentRepo">
-          <span class="repo-label">仓库路径:</span>
-          <span class="repo-path" :title="currentRepo">{{ currentRepo.split('/').pop() || currentRepo }}</span>
-        </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="nav-tabs">
-        <button
-          @click="currentTab = 'status'"
-          :class="{ active: currentTab === 'status' }"
-          class="nav-tab"
-        >
-          <span class="tab-icon">📋</span>
-          <span>状态</span>
-        </button>
-        <button
-          @click="currentTab = 'branches'"
-          :class="{ active: currentTab === 'branches' }"
-          class="nav-tab"
-        >
-          <span class="tab-icon">🌿</span>
-          <span>分支</span>
-        </button>
-        <button
-          @click="currentTab = 'history'"
-          :class="{ active: currentTab === 'history' }"
-          class="nav-tab"
-        >
-          <span class="tab-icon">📜</span>
-          <span>历史</span>
-        </button>
-        <button
-          @click="currentTab = 'tags'"
-          :class="{ active: currentTab === 'tags' }"
-          class="nav-tab"
-        >
-          <span class="tab-icon">🏷️</span>
-          <span>标签</span>
-        </button>
-        <button
-          @click="currentTab = 'prompts'"
-          :class="{ active: currentTab === 'prompts' }"
-          class="nav-tab"
-        >
-          <span class="tab-icon">📝</span>
-          <span>提示词</span>
-        </button>
-        <button
-          @click="currentTab = 'repositories'"
-          :class="{ active: currentTab === 'repositories' }"
-          class="nav-tab"
-        >
-          <span class="tab-icon">📁</span>
-          <span>仓库</span>
-        </button>
-        <button
-          @click="currentTab = 'ai-config'"
-          :class="{ active: currentTab === 'ai-config' }"
-          class="nav-tab"
-        >
-          <span class="tab-icon">🤖</span>
-          <span>AI 配置</span>
-        </button>
-      </nav>
-
-      <!-- Repository Actions -->
-      <div class="repo-actions">
-        <button @click="openRepository" class="action-btn">
-          <span class="action-icon">📂</span>
-          <span>打开仓库</span>
-        </button>
-        <button @click="showCloneRepository" class="action-btn">
-          <span class="action-icon">📥</span>
-          <span>克隆仓库</span>
-        </button>
+      <!-- 仓库信息 -->
+      <div class="repo-info" v-if="currentRepo">
+        <span class="repo-label">当前仓库:</span>
+        <span class="repo-path" :title="currentRepo">{{ currentRepo.split('/').pop() || currentRepo }}</span>
       </div>
 
-      <!-- Recent Repositories -->
+      <!-- 仓库管理分组 -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">仓库</div>
+        <nav class="nav-tabs">
+          <button @click="openRepository" class="action-btn">
+            <span class="action-icon">📂</span>
+            <span>打开</span>
+          </button>
+          <button @click="showCloneRepository" class="action-btn">
+            <span class="action-icon">📥</span>
+            <span>克隆</span>
+          </button>
+          <button
+            @click="currentTab = 'repositories'"
+            :class="{ active: currentTab === 'repositories' }"
+            class="nav-tab"
+          >
+            <span class="tab-icon">📁</span>
+            <span>管理</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Git 操作分组 -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Git 操作</div>
+        <nav class="nav-tabs">
+          <button
+            @click="currentTab = 'status'"
+            :class="{ active: currentTab === 'status' }"
+            class="nav-tab"
+          >
+            <span class="tab-icon">📋</span>
+            <span>状态</span>
+          </button>
+          <button
+            @click="currentTab = 'branches'"
+            :class="{ active: currentTab === 'branches' }"
+            class="nav-tab"
+          >
+            <span class="tab-icon">🌿</span>
+            <span>分支</span>
+          </button>
+          <button
+            @click="currentTab = 'history'"
+            :class="{ active: currentTab === 'history' }"
+            class="nav-tab"
+          >
+            <span class="tab-icon">📜</span>
+            <span>历史</span>
+          </button>
+          <button
+            @click="currentTab = 'tags'"
+            :class="{ active: currentTab === 'tags' }"
+            class="nav-tab"
+          >
+            <span class="tab-icon">🏷️</span>
+            <span>标签</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- 工具分组 -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">工具</div>
+        <nav class="nav-tabs">
+          <button
+            @click="currentTab = 'prompts'"
+            :class="{ active: currentTab === 'prompts' }"
+            class="nav-tab"
+          >
+            <span class="tab-icon">📝</span>
+            <span>提示词</span>
+          </button>
+          <button
+            @click="currentTab = 'ai-config'"
+            :class="{ active: currentTab === 'ai-config' }"
+            class="nav-tab"
+          >
+            <span class="tab-icon">🤖</span>
+            <span>AI 配置</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- 最近打开 -->
       <div class="recent-repos" v-if="recentRepos.length > 0">
-        <h3>最近打开</h3>
+        <h3>最近</h3>
         <div class="repo-list">
           <div
-            v-for="repo in recentRepos.slice(0, 5)"
+            v-for="repo in recentRepos.slice(0, 8)"
             :key="repo"
             @click="selectRecentRepo(repo)"
             class="repo-item"
@@ -442,40 +457,51 @@ watch(status, () => {
         </div>
       </div>
 
-      <!-- Remote Operations -->
-      <div class="remote-actions" v-if="currentRepo">
-        <h3>远程操作</h3>
-        <div class="remote-select">
-          <select v-model="selectedRemote" class="remote-select-input">
-            <option v-for="remote in remoteNames" :key="remote" :value="remote">
-              {{ remote }}
-            </option>
-          </select>
+      <!-- 操作按钮（如果有当前仓库） -->
+      <template v-if="currentRepo">
+        <!-- 远程操作 -->
+        <div class="sidebar-section" v-if="currentRepo">
+          <div class="sidebar-section-title">远程</div>
+          <div class="remote-select-small">
+            <select v-model="selectedRemote" class="remote-select-input">
+              <option v-for="remote in remoteNames" :key="remote" :value="remote">
+                {{ remote }}
+              </option>
+            </select>
+          </div>
+          <div class="action-buttons-row">
+            <button @click="pushToRemote" class="action-btn-small" :disabled="isPushing">
+              <span v-if="isPushing">...</span>
+              <span v-else>📤</span>
+            </button>
+            <button @click="pullFromRemote" class="action-btn-small" :disabled="isPulling">
+              <span v-if="isPulling">...</span>
+              <span v-else>📥</span>
+            </button>
+          </div>
         </div>
-        <div class="action-buttons">
-          <button @click="pushToRemote" class="action-btn-small" :disabled="isPushing">
-            <span v-if="isPushing">推送中...</span>
-            <span v-else>📤 推送</span>
-          </button>
-          <button @click="pullFromRemote" class="action-btn-small" :disabled="isPulling">
-            <span v-if="isPulling">拉取中...</span>
-            <span v-else>📥 拉取</span>
-          </button>
+
+        <!-- 版本操作 -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">版本</div>
+          <nav class="nav-tabs">
+            <button @click="showReset" class="nav-tab">
+              <span class="tab-icon">↩️</span>
+              <span>撤销</span>
+            </button>
+            <button @click="showRevert" class="nav-tab">
+              <span class="tab-icon">🔄</span>
+              <span>回滚</span>
+            </button>
+          </nav>
         </div>
-      </div>
 
-      <!-- Git Operations -->
-      <div class="git-actions" v-if="currentRepo">
-        <h3>版本操作</h3>
-        <button @click="showReset" class="action-btn-small">↩️ 撤销提交</button>
-        <button @click="showRevert" class="action-btn-small">🔄 回滚提交</button>
-      </div>
-
-      <!-- Operation Result -->
-      <div v-if="operationResult" class="operation-result" :class="{ success: operationResult.success, error: !operationResult.success }">
-        {{ operationResult.message }}
-        <button @click="operationResult = null" class="close-result">✕</button>
-      </div>
+        <!-- 操作结果 -->
+        <div v-if="operationResult" class="operation-result-small" :class="{ success: operationResult.success, error: !operationResult.success }">
+          {{ operationResult.message }}
+          <button @click="operationResult = null" class="close-result">✕</button>
+        </div>
+      </template>
     </aside>
 
     <!-- Main Content -->
@@ -678,67 +704,90 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 260px;
+  width: 200px;
   background: #16162a;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  gap: 1.5rem;
+  padding: 0.75rem;
+  gap: 0.5rem;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .sidebar-header h1 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-section {
   margin-bottom: 0.5rem;
+}
+
+.sidebar-section-title {
+  font-size: 0.65rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 0.5rem 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .repo-info {
   padding: 0.5rem;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 6px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  margin: 0.5rem;
 }
 
 .repo-label {
   color: #888;
   display: block;
   margin-bottom: 0.25rem;
+  font-size: 0.65rem;
 }
 
 .repo-path {
   color: #61dafb;
   font-family: 'Consolas', 'Monaco', monospace;
   word-break: break-all;
+  font-size: 0.7rem;
 }
 
 /* Navigation Tabs */
 .nav-tabs {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.15rem;
 }
 
 /* Repository Actions */
 .repo-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.15rem;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: #ccc;
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
+  font-size: 0.8rem;
 }
 
 .action-btn:hover {
@@ -748,21 +797,22 @@ body {
 }
 
 .action-icon {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .nav-tab {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
   background: transparent;
-  color: #ccc;
+  color: #999;
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
+  font-size: 0.8rem;
 }
 
 .nav-tab:hover {
@@ -772,21 +822,116 @@ body {
 
 .nav-tab.active {
   background: rgba(97, 218, 251, 0.1);
-  border-color: #61dafb;
+  border-color: rgba(97, 218, 251, 0.3);
   color: #61dafb;
 }
 
 .tab-icon {
-  font-size: 1.2rem;
+  font-size: 1rem;
+}
+
+/* Remote Select Small */
+.remote-select-small {
+  margin-bottom: 0.25rem;
+}
+
+.remote-select-small .remote-select-input {
+  width: 100%;
+  padding: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #e5e7eb;
+  font-size: 0.75rem;
+}
+
+.remote-select-small .remote-select-input:focus {
+  outline: none;
+  border-color: #61dafb;
+}
+
+/* Action Buttons Row */
+.action-buttons-row {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.action-btn-small {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  background: transparent;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn-small:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.action-btn-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Operation Result Small */
+.operation-result-small {
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.operation-result-small.success {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+}
+
+.operation-result-small.error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.operation-result-small .close-result {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.3rem;
+}
+
+.operation-result-small .close-result:hover {
+  opacity: 1;
 }
 
 /* Recent Repositories */
+.recent-repos {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .recent-repos h3 {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 0.65rem;
+  color: #666;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 0.5rem 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .repo-list {
@@ -1067,106 +1212,6 @@ body {
 
 .btn-danger:hover:not(:disabled) {
   background: rgba(239, 68, 68, 0.2) !important;
-}
-
-/* Remote Actions */
-.remote-actions,
-.git-actions {
-  padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-}
-
-.remote-actions h3,
-.git-actions h3 {
-  font-size: 0.75rem;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.75rem;
-}
-
-.remote-select {
-  margin-bottom: 0.5rem;
-}
-
-.remote-select-input {
-  width: 100%;
-  padding: 0.4rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.2);
-  color: #e5e7eb;
-  font-size: 0.85rem;
-}
-
-.remote-select-input:focus {
-  outline: none;
-  border-color: #61dafb;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.action-btn-small {
-  flex: 1;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-  background: transparent;
-  color: #ccc;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  text-align: center;
-}
-
-.action-btn-small:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.action-btn-small:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Operation Result */
-.operation-result {
-  padding: 0.75rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-
-.operation-result.success {
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid #22c55e;
-  color: #4ade80;
-}
-
-.operation-result.error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid #ef4444;
-  color: #f87171;
-}
-
-.close-result {
-  background: transparent;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  opacity: 0.7;
-  font-size: 0.9rem;
-}
-
-.close-result:hover {
-  opacity: 1;
 }
 
 /* Warning Message */
