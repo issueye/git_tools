@@ -10,6 +10,10 @@ export function CheckoutBranch(arg1) {
   return window['go']['main']['App']['CheckoutBranch'](arg1);
 }
 
+export function CheckoutTag(arg1) {
+  return window['go']['main']['App']['CheckoutTag'](arg1);
+}
+
 export function CloneRepository(arg1, arg2, arg3) {
   return window['go']['main']['App']['CloneRepository'](arg1, arg2, arg3);
 }
@@ -20,6 +24,22 @@ export function Commit(arg1) {
 
 export function CreateBranch(arg1, arg2) {
   return window['go']['main']['App']['CreateBranch'](arg1, arg2);
+}
+
+export function CreateTag(arg1, arg2, arg3) {
+  return window['go']['main']['App']['CreateTag'](arg1, arg2, arg3);
+}
+
+export function DeleteBranch(arg1, arg2) {
+  return window['go']['main']['App']['DeleteBranch'](arg1, arg2);
+}
+
+export function DeleteTag(arg1) {
+  return window['go']['main']['App']['DeleteTag'](arg1);
+}
+
+export function DiffBranches(arg1, arg2) {
+  return window['go']['main']['App']['DiffBranches'](arg1, arg2);
 }
 
 export function DiscardChanges(arg1) {
@@ -36,6 +56,10 @@ export function GetAIConfig() {
 
 export function GetBranches() {
   return window['go']['main']['App']['GetBranches']();
+}
+
+export function GetCommitDetail(arg1) {
+  return window['go']['main']['App']['GetCommitDetail'](arg1);
 }
 
 export function GetCurrentRepository() {
@@ -70,8 +94,16 @@ export function GetStatus() {
   return window['go']['main']['App']['GetStatus']();
 }
 
+export function GetTags() {
+  return window['go']['main']['App']['GetTags']();
+}
+
 export function IsValidGitRepository(arg1) {
   return window['go']['main']['App']['IsValidGitRepository'](arg1);
+}
+
+export function MergeBranch(arg1, arg2) {
+  return window['go']['main']['App']['MergeBranch'](arg1, arg2);
 }
 
 export function OpenFileInEditor(arg1) {

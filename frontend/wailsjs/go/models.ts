@@ -1,3 +1,26 @@
+export namespace git {
+	
+	export class Tag {
+	    name: string;
+	    commitHash: string;
+	    message: string;
+	    isAnnotated: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Tag(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.commitHash = source["commitHash"];
+	        this.message = source["message"];
+	        this.isAnnotated = source["isAnnotated"];
+	    }
+	}
+
+}
+
 export namespace models {
 	
 	export class AIConfig {

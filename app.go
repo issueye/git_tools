@@ -342,3 +342,55 @@ func (a *App) Revert(commit string, noCommit bool) error {
 func (a *App) GetRemoteNames() ([]string, error) {
 	return a.gitService.GetRemoteNames()
 }
+
+// Tag represents a git tag (type alias)
+type Tag = git.Tag
+
+// GetTags returns all tags
+func (a *App) GetTags() ([]Tag, error) {
+	tags, err := a.gitService.GetTags()
+	if err != nil {
+		return nil, err
+	}
+	// Convert to app-level Tag type
+	result := make([]Tag, len(tags))
+	for i, t := range tags {
+		result[i] = Tag(t)
+	}
+	return result, nil
+}
+
+// CreateTag creates a new tag
+func (a *App) CreateTag(name string, message string, commit string) error {
+	return a.gitService.CreateTag(name, message, commit)
+}
+
+// DeleteTag deletes a tag
+func (a *App) DeleteTag(name string) error {
+	return a.gitService.DeleteTag(name)
+}
+
+// CheckoutTag checks out a tag
+func (a *App) CheckoutTag(name string) error {
+	return a.gitService.CheckoutTag(name)
+}
+
+// MergeBranch merges a branch
+func (a *App) MergeBranch(branch string, noFF bool) error {
+	return a.gitService.MergeBranch(branch, noFF)
+}
+
+// DeleteBranch deletes a branch
+func (a *App) DeleteBranch(name string, force bool) error {
+	return a.gitService.DeleteBranch(name, force)
+}
+
+// DiffBranches compares two branches
+func (a *App) DiffBranches(branch1 string, branch2 string) (string, error) {
+	return a.gitService.DiffBranches(branch1, branch2)
+}
+
+// GetCommitDetail returns detailed commit info
+func (a *App) GetCommitDetail(commitHash string) (map[string]interface{}, error) {
+	return a.gitService.GetCommitDetail(commitHash)
+}

@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue'
 import GitStatus from './components/GitStatus.vue'
 import CommitPanel from './components/CommitPanel.vue'
 import BranchPanel from './components/BranchPanel.vue'
+import HistoryPanel from './components/HistoryPanel.vue'
+import TagsPanel from './components/TagsPanel.vue'
 import AIConfigPanel from './components/AIConfigPanel.vue'
 import {
   GetStatus,
@@ -14,11 +16,13 @@ import {
   Push,
   Pull,
   GetRemoteNames,
-  GetLog
+  GetLog,
+  MergeBranch,
+  DeleteBranch
 } from '/wailsjs/go/main/App'
 import type { models } from '/wailsjs/go/models'
 
-type TabType = 'status' | 'branches' | 'ai-config'
+type TabType = 'status' | 'branches' | 'history' | 'tags' | 'ai-config'
 
 const currentTab = ref<TabType>('status')
 const status = ref<models.GitStatus | null>(null)
@@ -51,6 +55,8 @@ const isLoadingCommits = ref(false)
 const operationResult = ref<{ success: boolean; message: string } | null>(null)
 
 const branchPanelRef = ref<InstanceType<typeof BranchPanel> | null>(null)
+const historyPanelRef = ref<InstanceType<typeof HistoryPanel> | null>(null)
+const tagsPanelRef = ref<InstanceType<typeof TagsPanel> | null>(null)
 
 async function loadStatus() {
   try {
@@ -362,6 +368,22 @@ watch(status, () => {
           <span>分支</span>
         </button>
         <button
+          @click="currentTab = 'history'"
+          :class="{ active: currentTab === 'history' }"
+          class="nav-tab"
+        >
+          <span class="tab-icon">📜</span>
+          <span>历史</span>
+        </button>
+        <button
+          @click="currentTab = 'tags'"
+          :class="{ active: currentTab === 'tags' }"
+          class="nav-tab"
+        >
+          <span class="tab-icon">🏷️</span>
+          <span>标签</span>
+        </button>
+        <button
           @click="currentTab = 'ai-config'"
           :class="{ active: currentTab === 'ai-config' }"
           class="nav-tab"
@@ -457,6 +479,16 @@ watch(status, () => {
       <!-- Branches Tab -->
       <div v-show="currentTab === 'branches'" class="tab-content">
         <BranchPanel ref="branchPanelRef" :has-repository="!!currentRepo" @branch-changed="onBranchChanged" />
+      </div>
+
+      <!-- History Tab -->
+      <div v-show="currentTab === 'history'" class="tab-content">
+        <HistoryPanel ref="historyPanelRef" :has-repository="!!currentRepo" />
+      </div>
+
+      <!-- Tags Tab -->
+      <div v-show="currentTab === 'tags'" class="tab-content">
+        <TagsPanel ref="tagsPanelRef" :has-repository="!!currentRepo" @tag-changed="onBranchChanged" />
       </div>
 
       <!-- AI Config Tab -->

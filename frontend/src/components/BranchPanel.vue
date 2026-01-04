@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue'
-import { GetBranches, CheckoutBranch, CreateBranch } from '/wailsjs/go/main/App'
+import { ref, onMounted, watch, computed } from 'vue'
+import { GetBranches, CheckoutBranch, CreateBranch, DeleteBranch, MergeBranch } from '/wailsjs/go/main/App'
 import type { models } from '/wailsjs/go/models'
 
 const props = defineProps<{
@@ -11,8 +11,24 @@ const emit = defineEmits(['branchChanged'])
 const branches = ref<models.Branch[]>([])
 const isLoading = ref(false)
 const showCreateDialog = ref(false)
+const showMergeDialog = ref(false)
 const newBranchName = ref('')
 const checkoutAfterCreate = ref(true)
+const mergeSourceBranch = ref('')
+const mergeLoading = ref(false)
+
+// Context menu state
+const contextMenu = ref<{ x: number; y: number; branch: models.Branch | null }>({
+  x: 0,
+  y: 0,
+  branch: null
+})
+
+// Computed property for current branch name
+const currentBranchName = computed(() => {
+  const current = branches.value.find(b => b.isCurrent)
+  return current ? current.name : '未知'
+})
 
 async function loadBranches() {
   isLoading.value = true
@@ -45,6 +61,10 @@ function isRemoteBranch(branch: models.Branch): boolean {
   return branch.name.startsWith('remotes/')
 }
 
+function isCurrentBranch(branch: models.Branch): boolean {
+  return branch.isCurrent
+}
+
 async function createBranch() {
   if (!newBranchName.value.trim()) {
     alert('请输入分支名称')
@@ -62,13 +82,85 @@ async function createBranch() {
   }
 }
 
+async function deleteLocalBranch(branchName: string) {
+  if (isCurrentBranch({ name: branchName, isCurrent: true })) {
+    alert('不能删除当前所在分支')
+    return
+  }
+
+  if (!confirm(`确定要删除本地分支 "${branchName}" 吗？`)) {
+    return
+  }
+
+  try {
+    await DeleteBranch(branchName, false)
+    await loadBranches()
+    emit('branchChanged')
+  } catch (error: any) {
+    console.error('Failed to delete branch:', error)
+    alert('删除分支失败: ' + error.message)
+  }
+}
+
+async function mergeBranch() {
+  if (!mergeSourceBranch.value) {
+    alert('请选择要合并的分支')
+    return
+  }
+
+  mergeLoading.value = true
+  try {
+    await MergeBranch(mergeSourceBranch.value, false)
+    showMergeDialog.value = false
+    mergeSourceBranch.value = ''
+    emit('branchChanged')
+  } catch (error: any) {
+    console.error('Failed to merge branch:', error)
+    alert('合并分支失败: ' + error.message)
+  } finally {
+    mergeLoading.value = false
+  }
+}
+
+// Context menu functions
+function showContextMenu(e: MouseEvent, branch: models.Branch) {
+  if (isRemoteBranch(branch)) return // No context menu for remote branches
+  if (isCurrentBranch(branch)) return // No context menu for current branch
+
+  e.preventDefault()
+  contextMenu.value = {
+    x: e.clientX,
+    y: e.clientY,
+    branch: branch
+  }
+}
+
+function hideContextMenu() {
+  contextMenu.value.branch = null
+}
+
+async function handleContextMenuDelete() {
+  if (contextMenu.value.branch) {
+    await deleteLocalBranch(contextMenu.value.branch.name)
+    hideContextMenu()
+  }
+}
+
+function openMergeDialog() {
+  showMergeDialog.value = true
+  mergeSourceBranch.value = ''
+  hideContextMenu()
+}
+
 onMounted(() => {
   if (props.hasRepository) {
     loadBranches()
   }
+
+  // Close context menu on click outside
+  document.addEventListener('click', hideContextMenu)
 })
 
-// Watch for repository changes
 watch(() => props.hasRepository, (newVal) => {
   if (newVal) {
     loadBranches()
@@ -86,10 +178,15 @@ defineExpose({
   <div class="branch-panel">
     <div class="panel-header">
       <h2>分支</h2>
-      <button @click="loadBranches" class="btn-refresh" :disabled="isLoading" title="刷新">
-        <span v-if="isLoading">⟳</span>
-        <span v-else>⟳</span>
-      </button>
+      <div class="header-actions">
+        <button @click="openMergeDialog" class="btn-action-small" :disabled="!hasRepository" title="合并分支">
+          合并
+        </button>
+        <button @click="loadBranches" class="btn-refresh" :disabled="isLoading" title="刷新">
+          <span v-if="isLoading">⟳</span>
+          <span v-else>⟳</span>
+        </button>
+      </div>
     </div>
 
     <div class="branch-list">
@@ -107,9 +204,11 @@ defineExpose({
             class="branch-item"
             :class="{ current: branch.isCurrent }"
             @click="switchToBranch(branch.name)"
+            @contextmenu="showContextMenu($event, branch)"
           >
             <span class="branch-icon">{{ branch.isCurrent ? '●' : '○' }}</span>
             <span class="branch-name">{{ branch.name }}</span>
+            <span v-if="branch.isCurrent" class="current-badge">当前</span>
           </div>
         </div>
 
@@ -130,6 +229,15 @@ defineExpose({
     </div>
 
     <button @click="showCreateDialog = true" class="btn-create">+ 新建分支</button>
+
+    <!-- Context Menu -->
+    <div
+      v-if="contextMenu.branch"
+      class="context-menu"
+      :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
+    >
+      <div class="context-item" @click="handleContextMenuDelete">删除分支</div>
+    </div>
 
     <!-- Create Branch Dialog -->
     <div v-if="showCreateDialog" class="dialog-overlay" @click.self="showCreateDialog = false">
@@ -158,6 +266,39 @@ defineExpose({
         <div class="dialog-footer">
           <button @click="showCreateDialog = false" class="btn-cancel">取消</button>
           <button @click="createBranch" class="btn-confirm">创建</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Merge Branch Dialog -->
+    <div v-if="showMergeDialog" class="dialog-overlay" @click.self="showMergeDialog = false">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>合并分支到当前分支</h3>
+          <button @click="showMergeDialog = false" class="btn-close">✕</button>
+        </div>
+        <div class="dialog-body">
+          <div class="form-group">
+            <label>选择要合并的分支</label>
+            <select v-model="mergeSourceBranch" class="form-input">
+              <option value="">请选择...</option>
+              <option
+                v-for="branch in branches.filter(b => !b.isCurrent && !isRemoteBranch(b))"
+                :key="branch.name"
+                :value="branch.name"
+              >
+                {{ branch.name }}
+              </option>
+            </select>
+          </div>
+          <p class="help-text">将选中的分支合并到当前分支 ({{ currentBranchName }})</p>
+        </div>
+        <div class="dialog-footer">
+          <button @click="showMergeDialog = false" class="btn-cancel">取消</button>
+          <button @click="mergeBranch" class="btn-confirm" :disabled="!mergeSourceBranch || mergeLoading">
+            <span v-if="mergeLoading">合并中...</span>
+            <span v-else>确认合并</span>
+          </button>
         </div>
       </div>
     </div>
@@ -405,5 +546,86 @@ defineExpose({
 
 .btn-confirm:hover {
   background: rgba(97, 218, 251, 0.2);
+}
+
+.btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-action-small {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: transparent;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.btn-action-small:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-action-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 0.25rem 0;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.context-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: #e5e7eb;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.context-item:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+/* Current badge */
+.current-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  background: rgba(97, 218, 251, 0.2);
+  color: #61dafb;
+  margin-left: auto;
+}
+
+/* Help text */
+.help-text {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Form input select */
+.form-group select.form-input {
+  cursor: pointer;
+}
+
+.form-group select.form-input:focus {
+  outline: none;
+  border-color: #61dafb;
 }
 </style>

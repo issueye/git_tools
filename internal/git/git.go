@@ -528,3 +528,182 @@ func (g *GitService) GetRemoteNames() ([]string, error) {
 	}
 	return names, nil
 }
+
+// Tag represents a git tag
+type Tag struct {
+	Name        string `json:"name"`
+	CommitHash  string `json:"commitHash"`
+	Message     string `json:"message"`
+	IsAnnotated bool   `json:"isAnnotated"`
+}
+
+// GetTags returns all tags
+func (g *GitService) GetTags() ([]Tag, error) {
+	if g.currentPath == "" {
+		return nil, fmt.Errorf("no repository selected")
+	}
+
+	output, err := g.runGitCommand("tag", "-l", "--format=%(refname:short)|%(objectname:short)|%(contents:subject)|%(contents:body)")
+	if err != nil {
+		return nil, err
+	}
+
+	var tags []Tag
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		parts := strings.SplitN(line, "|", 4)
+		if len(parts) >= 2 {
+			tag := Tag{
+				Name:        parts[0],
+				CommitHash:  parts[1],
+				IsAnnotated: len(parts) >= 3 && parts[2] != "",
+			}
+			if len(parts) >= 3 && parts[2] != "" {
+				tag.Message = parts[2]
+			}
+			tags = append(tags, tag)
+		}
+	}
+
+	return tags, nil
+}
+
+// CreateTag creates a new tag
+func (g *GitService) CreateTag(name string, message string, commit string) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	if name == "" {
+		return fmt.Errorf("tag name cannot be empty")
+	}
+
+	args := []string{"tag"}
+	if message != "" {
+		args = append(args, "-a", "-m", message)
+	} else {
+		args = append(args, name)
+	}
+
+	if commit != "" {
+		args = append(args, commit)
+	}
+
+	_, err := g.runGitCommand(args...)
+	return err
+}
+
+// DeleteTag deletes a tag
+func (g *GitService) DeleteTag(name string) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	if name == "" {
+		return fmt.Errorf("tag name cannot be empty")
+	}
+
+	_, err := g.runGitCommand("tag", "-d", name)
+	return err
+}
+
+// CheckoutTag checks out a tag (creates detached HEAD)
+func (g *GitService) CheckoutTag(name string) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	if name == "" {
+		return fmt.Errorf("tag name cannot be empty")
+	}
+
+	_, err := g.runGitCommand("checkout", name)
+	return err
+}
+
+// MergeBranch merges a branch into current branch
+func (g *GitService) MergeBranch(branch string, noFF bool) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	if branch == "" {
+		return fmt.Errorf("branch name cannot be empty")
+	}
+
+	args := []string{"merge"}
+	if noFF {
+		args = append(args, "--no-ff")
+	}
+	args = append(args, branch)
+
+	_, err := g.runGitCommand(args...)
+	return err
+}
+
+// DeleteBranch deletes a branch
+func (g *GitService) DeleteBranch(name string, force bool) error {
+	if g.currentPath == "" {
+		return fmt.Errorf("no repository selected")
+	}
+
+	if name == "" {
+		return fmt.Errorf("branch name cannot be empty")
+	}
+
+	args := []string{"branch"}
+	if force {
+		args = append(args, "-D")
+	} else {
+		args = append(args, "-d")
+	}
+	args = append(args, name)
+
+	_, err := g.runGitCommand(args...)
+	return err
+}
+
+// DiffBranches compares two branches and returns the diff
+func (g *GitService) DiffBranches(branch1 string, branch2 string) (string, error) {
+	if g.currentPath == "" {
+		return "", fmt.Errorf("no repository selected")
+	}
+
+	output, err := g.runGitCommand("diff", branch1+"..."+branch2)
+	return output, err
+}
+
+// GetCommitDetail returns detailed information about a commit
+func (g *GitService) GetCommitDetail(commitHash string) (map[string]interface{}, error) {
+	if g.currentPath == "" {
+		return nil, fmt.Errorf("no repository selected")
+	}
+
+	// Get commit info
+	output, err := g.runGitCommand("log", "-1", "--format=%H|%s|%an|%ad|%ae", "--date=iso", commitHash)
+	if err != nil {
+		return nil, fmt.Errorf("commit not found: %w", err)
+	}
+
+	parts := strings.SplitN(output, "|", 5)
+	if len(parts) < 4 {
+		return nil, fmt.Errorf("invalid commit format")
+	}
+
+	result := map[string]interface{}{
+		"hash":    parts[0],
+		"message": parts[1],
+		"author":  parts[2],
+		"date":    parts[3],
+	}
+
+	// Get changed files
+	filesOutput, _ := g.runGitCommand("show", "--stat", "--format=", commitHash)
+	result["files"] = filesOutput
+
+	return result, nil
+}

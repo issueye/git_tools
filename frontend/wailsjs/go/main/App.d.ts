@@ -7,11 +7,21 @@ export function AddRemote(arg1:string,arg2:string):Promise<void>;
 
 export function CheckoutBranch(arg1:string):Promise<void>;
 
+export function CheckoutTag(arg1:string):Promise<void>;
+
 export function CloneRepository(arg1:string,arg2:string,arg3:string):Promise<void>;
 
 export function Commit(arg1:string):Promise<void>;
 
 export function CreateBranch(arg1:string,arg2:boolean):Promise<void>;
+
+export function CreateTag(arg1:string,arg2:string,arg3:string):Promise<void>;
+
+export function DeleteBranch(arg1:string,arg2:boolean):Promise<void>;
+
+export function DeleteTag(arg1:string):Promise<void>;
+
+export function DiffBranches(arg1:string,arg2:string):Promise<string>;
 
 export function DiscardChanges(arg1:string):Promise<void>;
 
@@ -20,6 +30,8 @@ export function GenerateCommitMessage():Promise<string>;
 export function GetAIConfig():Promise<models.AIConfig>;
 
 export function GetBranches():Promise<Array<models.Branch>>;
+
+export function GetCommitDetail(arg1:string):Promise<Record<string, any>>;
 
 export function GetCurrentRepository():Promise<string>;
 
@@ -37,7 +49,11 @@ export function GetRepositoryInfo():Promise<Record<string, any>>;
 
 export function GetStatus():Promise<models.GitStatus>;
 
+export function GetTags():Promise<Array<git.Tag>>;
+
 export function IsValidGitRepository(arg1:string):Promise<boolean>;
+
+export function MergeBranch(arg1:string,arg2:boolean):Promise<void>;
 
 export function OpenFileInEditor(arg1:string):Promise<void>;
 
