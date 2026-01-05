@@ -446,7 +446,7 @@ watch(status, () => {
         </nav>
       </div>
 
-      <!-- 最近打开 -->
+      <!-- 最近打开 - 可滚动区域 -->
       <div class="recent-repos" v-if="recentRepos.length > 0">
         <h3>最近</h3>
         <div class="repo-list">
@@ -463,51 +463,54 @@ watch(status, () => {
         </div>
       </div>
 
-      <!-- 操作按钮（如果有当前仓库） -->
-      <template v-if="currentRepo">
-        <!-- 远程操作 -->
-        <div class="sidebar-section" v-if="currentRepo">
-          <div class="sidebar-section-title">远程</div>
-          <div class="remote-select-small">
-            <select v-model="selectedRemote" class="remote-select-input">
-              <option v-for="remote in remoteNames" :key="remote" :value="remote">
-                {{ remote }}
-              </option>
-            </select>
+      <!-- 底部固定区域 -->
+      <div class="sidebar-bottom">
+        <!-- 操作按钮（如果有当前仓库） -->
+        <template v-if="currentRepo">
+          <!-- 远程操作 -->
+          <div class="sidebar-section" v-if="currentRepo">
+            <div class="sidebar-section-title">远程</div>
+            <div class="remote-select-small">
+              <select v-model="selectedRemote" class="remote-select-input">
+                <option v-for="remote in remoteNames" :key="remote" :value="remote">
+                  {{ remote }}
+                </option>
+              </select>
+            </div>
+            <div class="action-buttons-row">
+              <button @click="pushToRemote" class="action-btn-small" :disabled="isPushing">
+                <span v-if="isPushing">...</span>
+                <span v-else>📤</span>
+              </button>
+              <button @click="pullFromRemote" class="action-btn-small" :disabled="isPulling">
+                <span v-if="isPulling">...</span>
+                <span v-else>📥</span>
+              </button>
+            </div>
           </div>
-          <div class="action-buttons-row">
-            <button @click="pushToRemote" class="action-btn-small" :disabled="isPushing">
-              <span v-if="isPushing">...</span>
-              <span v-else>📤</span>
-            </button>
-            <button @click="pullFromRemote" class="action-btn-small" :disabled="isPulling">
-              <span v-if="isPulling">...</span>
-              <span v-else>📥</span>
-            </button>
+
+          <!-- 版本操作 -->
+          <div class="sidebar-section">
+            <div class="sidebar-section-title">版本</div>
+            <nav class="nav-tabs">
+              <button @click="showReset" class="nav-tab">
+                <span class="tab-icon">↩️</span>
+                <span>撤销</span>
+              </button>
+              <button @click="showRevert" class="nav-tab">
+                <span class="tab-icon">🔄</span>
+                <span>回滚</span>
+              </button>
+            </nav>
           </div>
-        </div>
 
-        <!-- 版本操作 -->
-        <div class="sidebar-section">
-          <div class="sidebar-section-title">版本</div>
-          <nav class="nav-tabs">
-            <button @click="showReset" class="nav-tab">
-              <span class="tab-icon">↩️</span>
-              <span>撤销</span>
-            </button>
-            <button @click="showRevert" class="nav-tab">
-              <span class="tab-icon">🔄</span>
-              <span>回滚</span>
-            </button>
-          </nav>
-        </div>
-
-        <!-- 操作结果 -->
-        <div v-if="operationResult" class="operation-result-small" :class="{ success: operationResult.success, error: !operationResult.success }">
-          {{ operationResult.message }}
-          <button @click="operationResult = null" class="close-result">✕</button>
-        </div>
-      </template>
+          <!-- 操作结果 -->
+          <div v-if="operationResult" class="operation-result-small" :class="{ success: operationResult.success, error: !operationResult.success }">
+            {{ operationResult.message }}
+            <button @click="operationResult = null" class="close-result">✕</button>
+          </div>
+        </template>
+      </div>
     </aside>
 
     <!-- Main Content -->
@@ -717,7 +720,7 @@ body {
   flex-direction: column;
   padding: 0.75rem;
   gap: 0.5rem;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .sidebar-header {
@@ -734,6 +737,10 @@ body {
 
 .sidebar-section {
   margin-bottom: 0.5rem;
+}
+
+.sidebar-bottom .sidebar-section {
+  margin-bottom: 0.25rem;
 }
 
 .sidebar-section-title {
@@ -929,6 +936,14 @@ body {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+}
+
+/* Sidebar Bottom - Fixed at bottom */
+.sidebar-bottom {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .recent-repos h3 {
