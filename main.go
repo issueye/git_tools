@@ -24,7 +24,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:  "Git AI Tools",
 		Width:  1500,
-		Height: 1200,
+		Height: 870,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { Commit, GenerateCommitMessage } from '/wailsjs/go/main/App'
+import { Commit, GenerateCommitMessage, GetAIConfig } from '/wailsjs/go/main/App'
+import type { models } from '/wailsjs/go/models'
 
 const emit = defineEmits(['committed'])
 const props = defineProps<{
@@ -11,8 +12,31 @@ const message = ref('')
 const isGenerating = ref(false)
 const isCommitting = ref(false)
 
+async function checkAIConfig(): Promise<boolean> {
+  try {
+    const config = await GetAIConfig()
+    if (!config.baseUrl || !config.model) {
+      return false
+    }
+    // Ollama 不需要 API Key
+    if (config.provider !== 'ollama' && !config.apiKey) {
+      return false
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function generateMessage() {
   if (isGenerating.value) return
+
+  // 检查 AI 配置
+  const hasAIConfig = await checkAIConfig()
+  if (!hasAIConfig) {
+    alert('请先在 AI 配置中填写完整的 API 信息（API Key、接口地址、模型）')
+    return
+  }
 
   isGenerating.value = true
   try {

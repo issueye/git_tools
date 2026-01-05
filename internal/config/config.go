@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"time"
 
 	"git-ai-tools/internal/database"
@@ -17,7 +18,9 @@ type ConfigService struct {
 // NewConfigService creates a new ConfigService instance
 func NewConfigService() *ConfigService {
 	// Ensure database is initialized
-	database.Init()
+	if err := database.Init(); err != nil {
+		panic("failed to initialize database: " + err.Error())
+	}
 
 	cs := &ConfigService{}
 
@@ -44,22 +47,28 @@ func NewConfigService() *ConfigService {
 // GetAIConfig returns the AI configuration
 func (c *ConfigService) GetAIConfig() models.AIConfig {
 	var config models.AIConfig
-	// Try to parse from JSON
 	if c.db.Value != "" {
-		// For now, return default if not stored properly
-		return models.AIConfig{
-			Provider: models.ProviderOpenAI,
-			BaseURL:  "https://api.openai.com/v1",
-			Model:    "gpt-4",
+		if err := json.Unmarshal([]byte(c.db.Value), &config); err == nil {
+			return config
 		}
 	}
-	return config
+	// Return default config if parsing fails
+	return models.AIConfig{
+		Provider: models.ProviderOpenAI,
+		BaseURL:  "https://api.openai.com/v1",
+		Model:    "gpt-4",
+	}
 }
 
 // SetAIConfig updates the AI configuration
 func (c *ConfigService) SetAIConfig(config models.AIConfig) error {
-	// For now, we'll store individual fields
-	return nil
+	value, err := json.Marshal(config)
+	if err != nil {
+		return err
+	}
+	c.db.Value = string(value)
+	c.db.UpdatedAt = time.Now()
+	return database.GetDB().Save(c.db).Error
 }
 
 // AddRecentRepo adds a repository to recent repos list

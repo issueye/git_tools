@@ -16,7 +16,15 @@
       "Bash(go generate:*)",
       "Bash(go build:*)",
       "Bash(cat:*)",
-      "Bash(go get:*)"
+      "Bash(go get:*)",
+      "Bash(set GOTOOLCHAIN=local:*)",
+      "Bash(set:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)",
+      "Bash(git reset HEAD nul:*)",
+      "Bash(del:*)",
+      "Bash(findstr:*)",
+      "Bash(findstr /v \"wailsjs\")"
     ]
   }
 }
