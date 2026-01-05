@@ -5,7 +5,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"syscall"
 
 	"git-ai-tools/internal/models"
 )
@@ -400,6 +402,13 @@ func (g *GitService) runGitCommand(args ...string) (string, error) {
 	cmd := exec.Command("git", args...)
 	if g.currentPath != "" {
 		cmd.Dir = g.currentPath
+	}
+
+	// Hide command window on Windows
+	if runtime.GOOS == "windows" {
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			HideWindow: true,
+		}
 	}
 
 	output, err := cmd.CombinedOutput()
