@@ -353,6 +353,31 @@ import { watch } from 'vue'
 watch(status, () => {
   updateHasStagedChanges()
 }, { immediate: true, deep: true })
+
+// Watch tab changes to refresh data
+watch(currentTab, async (newTab) => {
+  switch (newTab) {
+    case 'status':
+      await loadStatus()
+      await loadRemotes()
+      break
+    case 'branches':
+      if (branchPanelRef.value) {
+        branchPanelRef.value.loadBranches()
+      }
+      break
+    case 'history':
+      if (historyPanelRef.value) {
+        historyPanelRef.value.loadCommits()
+      }
+      break
+    case 'tags':
+      if (tagsPanelRef.value) {
+        tagsPanelRef.value.loadTags()
+      }
+      break
+  }
+})
 </script>
 
 <template>
@@ -463,54 +488,6 @@ watch(status, () => {
         </div>
       </div>
 
-      <!-- 底部固定区域 -->
-      <div class="sidebar-bottom">
-        <!-- 操作按钮（如果有当前仓库） -->
-        <template v-if="currentRepo">
-          <!-- 远程操作 -->
-          <div class="sidebar-section" v-if="currentRepo">
-            <div class="sidebar-section-title">远程</div>
-            <div class="remote-select-small">
-              <select v-model="selectedRemote" class="remote-select-input">
-                <option v-for="remote in remoteNames" :key="remote" :value="remote">
-                  {{ remote }}
-                </option>
-              </select>
-            </div>
-            <div class="action-buttons-row">
-              <button @click="pushToRemote" class="action-btn-small" :disabled="isPushing">
-                <span v-if="isPushing">...</span>
-                <span v-else>📤</span>
-              </button>
-              <button @click="pullFromRemote" class="action-btn-small" :disabled="isPulling">
-                <span v-if="isPulling">...</span>
-                <span v-else>📥</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 版本操作 -->
-          <div class="sidebar-section">
-            <div class="sidebar-section-title">版本</div>
-            <nav class="nav-tabs">
-              <button @click="showReset" class="nav-tab">
-                <span class="tab-icon">↩️</span>
-                <span>撤销</span>
-              </button>
-              <button @click="showRevert" class="nav-tab">
-                <span class="tab-icon">🔄</span>
-                <span>回滚</span>
-              </button>
-            </nav>
-          </div>
-
-          <!-- 操作结果 -->
-          <div v-if="operationResult" class="operation-result-small" :class="{ success: operationResult.success, error: !operationResult.success }">
-            {{ operationResult.message }}
-            <button @click="operationResult = null" class="close-result">✕</button>
-          </div>
-        </template>
-      </div>
     </aside>
 
     <!-- Main Content -->
